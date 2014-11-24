@@ -5,7 +5,7 @@ from google.appengine.ext import db
 
 PAGE_TEMPLATE = """\
 <html><body>
-<h1>達さんのIPは<a href=//%s>%s</a>です。</h1>
+<h1>達さんの%sは<a href=//%s>%s</a>です。</h1>
 </body></html>
 """
 ERROR_PAGE_TEMPLATE = """\
@@ -25,7 +25,13 @@ class Fetch(webapp2.RequestHandler):
     logging.info(('addr:', addresses))
     if addresses:
       ip = addresses[0].ip.encode('utf8')
-      if ip: self.response.write(PAGE_TEMPLATE % (ip, ip))
+      if ':' in ip:
+        url = '[%s]' % ip
+        ip_type = 'IPv6'
+      else:
+        url = ip
+        ip_type = 'IP'
+      if ip: self.response.write(PAGE_TEMPLATE % (ip_type, url, ip))
       else: self.response.write(ERROR_PAGE_TEMPLATE % 'ここに達さんのIPがありません。')
     else:
       self.response.write(ERROR_PAGE_TEMPLATE % 'o(╯□╰)o データ エラー')
