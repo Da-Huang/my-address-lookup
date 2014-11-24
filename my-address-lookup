@@ -1,0 +1,1 @@
+*/15 * * * * dhuang curl "da-huang.appspot.com/store?secret_token=5NwPmqv6sCs8D9Nm"
