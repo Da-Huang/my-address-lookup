@@ -14,14 +14,9 @@ ERROR_PAGE_TEMPLATE = """\
 </body></html>
 """
 
-#import string, random
-#SECRET_TOKEN_LENGTH = 16
-#SECRET_TOKEN = ''.join([random.choice(string.letters+string.digits) for i in range(SECRET_TOKEN_LENGTH)])
-SECRET_TOKEN = 'sewm1220'
-
 class Fetch(webapp2.RequestHandler):
   def get(self):
-    address_query = Address.gql("WHERE secret_token=:secret_token", secret_token=SECRET_TOKEN)
+    address_query = Address.all()
     addresses = address_query.fetch(1)
     logging.info(('addr:', addresses))
     if addresses:
@@ -58,9 +53,6 @@ class Store(webapp2.RequestHandler):
     else:
       self.response.write(ERROR_PAGE_TEMPLATE % '失敗です。')
 
-#db.delete(db.Query())
-#if not Address.gql("WHERE secret_token=:")
-#Address(secret_token=SECRET_TOKEN, ip='').put()
 application = webapp2.WSGIApplication([
   ('/', Fetch),
   ('/store', Store),
