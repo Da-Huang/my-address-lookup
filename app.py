@@ -20,21 +20,28 @@ class Fetch(webapp2.RequestHandler):
     addresses = address_query.fetch(1)
     logging.info(('addr:', addresses))
     if addresses:
-      ip = addresses[0].ip.encode('utf8')
-      if ':' in ip:
-        url = '[%s]' % ip
-        ip_type = 'IPv6'
+      ip = addresses[0].ip
+      if ip:
+        ip = ip.encode('utf8')
+        if ':' in ip:
+          url = '[%s]' % ip
+          ip_type = 'IPv6'
+        else:
+          url = ip
+          ip_type = 'IP'
+        self.response.write(PAGE_TEMPLATE % (ip_type, url, ip))
       else:
-        url = ip
-        ip_type = 'IP'
-      if ip: self.response.write(PAGE_TEMPLATE % (ip_type, url, ip))
-      else: self.response.write(ERROR_PAGE_TEMPLATE % 'ここに達さんのIPがありません。')
+        self.response.write(ERROR_PAGE_TEMPLATE % 'ここに達さんのIPがありません。')
     else:
       self.response.write(ERROR_PAGE_TEMPLATE % 'o(╯□╰)o データ エラー')
 
 class Address(db.Model):
   secret_token = db.StringProperty()
   ip = db.StringProperty()
+  def __str__(self):
+    return 'ip=%s,secret_token=%s' % (self.ip, self.secret_token)
+  def __repr__(self):
+    return self.__str__()
 
 class Store(webapp2.RequestHandler):
   def get(self):
@@ -53,6 +60,7 @@ class Store(webapp2.RequestHandler):
     else:
       self.response.write(ERROR_PAGE_TEMPLATE % '失敗です。')
 
+if not Address().all().fetch(1): Address(ip='', secret_token='').put()
 application = webapp2.WSGIApplication([
   ('/', Fetch),
   ('/store', Store),
